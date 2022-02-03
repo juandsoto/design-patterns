@@ -21,6 +21,16 @@ interface Database<T extends BaseRecord> {
 function createDatabase<T extends BaseRecord>(){
 	class InMemoryDatabase implements Database<T> {
 		private db: Record<string,T> = {}
+
+		/**
+		 * Singleton Pattern
+		 * Create a static instance
+		 * Make constructor private so we cannot create an object outside the class.
+		 */
+		static instance: InMemoryDatabase = new InMemoryDatabase();
+
+		private constructor(){}
+		
 		get(id: string): T {
 			return this.db[id]
 		}
@@ -28,25 +38,18 @@ function createDatabase<T extends BaseRecord>(){
 			this.db[newValue.id] = newValue;
 		}
 	}
-	/**
-	 * Singleton
-	 */
-	const db = new InMemoryDatabase();
-
-	return db;
+	return InMemoryDatabase;
 }
 
-/**
- * PokemonDB is a pokemon database class
- */
 const PokemonDB = createDatabase<Pokemon>();
-const pokemonDB = new PokemonDB();
 
-pokemonDB.set({
+//Cannot do this -> const pokemonDB = new PokemonDB();
+
+PokemonDB.instance.set({
 	id: 'bulbasaur',
 	attack: 50,
 	defense: 10
 })
 
-console.log(pokemonDB.get('bulbasaur'));
+console.log(PokemonDB.instance.get('bulbasaur'));
 
