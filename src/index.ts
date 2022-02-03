@@ -1,3 +1,4 @@
+import { loader, RecordHandler } from "./loader";
 /**
  * Observer Pattern
  */
@@ -146,10 +147,24 @@ function createDatabase<T extends BaseRecord>() {
 
 const PokemonDB = createDatabase<Pokemon>();
 
+/**
+ * Adaptor Pattern
+ */
+class PokemonDBAdapter implements RecordHandler<Pokemon> {
+  addRecord(record: Pokemon): void {
+    PokemonDB.instance.set(record);
+  }
+}
+
 //code runs after adding a new pokemon
-// const unsubscribe = PokemonDB.instance.onAfterAdd(({ value }) =>
-//   console.log("new pokemon added: ", value)
-// );
+const unsubscribe = PokemonDB.instance.onAfterAdd(({ value }) =>
+  console.log("new pokemon added: ", value)
+);
+
+/**
+ * Adaptor Pattern
+ */
+loader("./data.json", new PokemonDBAdapter());
 
 PokemonDB.instance.set({
   id: "bulbasaur",
@@ -157,7 +172,7 @@ PokemonDB.instance.set({
   defense: 10,
 });
 //this call removes the listener
-// unsubscribe();
+unsubscribe();
 
 PokemonDB.instance.set({
   id: "squirtle",
@@ -174,8 +189,8 @@ PokemonDB.instance.set({
 /**
  * Strategy Pattern
  */
-const bestDefensive = PokemonDB.instance.selectBest(pokemon => pokemon.defense);
-const bestAttack = PokemonDB.instance.selectBest(pokemon => pokemon.attack);
+// const bestDefensive = PokemonDB.instance.selectBest(pokemon => pokemon.defense);
+// const bestAttack = PokemonDB.instance.selectBest(pokemon => pokemon.attack);
 
-console.log(`Best defensive -> ${bestDefensive?.id}`);
-console.log(`Best attack -> ${bestAttack?.id}`);
+// console.log(`Best defensive -> ${bestDefensive?.id}`);
+// console.log(`Best attack -> ${bestAttack?.id}`);
