@@ -28,8 +28,12 @@ function createDatabase<T extends BaseRecord>(){
 			this.db[newValue.id] = newValue;
 		}
 	}
+	/**
+	 * Singleton
+	 */
+	const db = new InMemoryDatabase();
 
-	return InMemoryDatabase;
+	return db;
 }
 
 /**
