@@ -101,6 +101,30 @@ function createDatabase<T extends BaseRecord>() {
       Object.values(this.db).forEach(visitor);
     }
 
+    /**
+     * Strategy Pattern
+     */
+    selectBest(scoreStrategy: (item: T) => number): T | undefined {
+      const found: {
+        max: number;
+        item: T | undefined;
+      } = {
+        max: 0,
+        item: undefined,
+      };
+
+      Object.values(this.db).reduce((f, item) => {
+        const score = scoreStrategy(item);
+        if (score > f.max) {
+          f.max = score;
+          f.item = item;
+        }
+        return f;
+      }, found);
+
+      return found.item;
+    }
+
     get(id: string): T {
       return this.db[id];
     }
@@ -123,9 +147,9 @@ function createDatabase<T extends BaseRecord>() {
 const PokemonDB = createDatabase<Pokemon>();
 
 //code runs after adding a new pokemon
-const unsubscribe = PokemonDB.instance.onAfterAdd(({ value }) =>
-  console.log("new pokemon added: ", value)
-);
+// const unsubscribe = PokemonDB.instance.onAfterAdd(({ value }) =>
+//   console.log("new pokemon added: ", value)
+// );
 
 PokemonDB.instance.set({
   id: "bulbasaur",
@@ -133,7 +157,7 @@ PokemonDB.instance.set({
   defense: 10,
 });
 //this call removes the listener
-unsubscribe();
+// unsubscribe();
 
 PokemonDB.instance.set({
   id: "squirtle",
@@ -144,6 +168,14 @@ PokemonDB.instance.set({
  * Visitor Pattern
  * Just like using foreach
  */
-PokemonDB.instance.visit(item => {
-  console.log(item.id);
-});
+// PokemonDB.instance.visit(item => {
+//   console.log(item.id);
+// });
+/**
+ * Strategy Pattern
+ */
+const bestDefensive = PokemonDB.instance.selectBest(pokemon => pokemon.defense);
+const bestAttack = PokemonDB.instance.selectBest(pokemon => pokemon.attack);
+
+console.log(`Best defensive -> ${bestDefensive?.id}`);
+console.log(`Best attack -> ${bestAttack?.id}`);
