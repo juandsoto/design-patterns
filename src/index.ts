@@ -57,6 +57,11 @@ interface Database<T extends BaseRecord> {
    */
   onBeforeAdd(listener: Listener<BeforeSetEvent<T>>): () => void;
   onAfterAdd(listener: Listener<AfterSetEvent<T>>): () => void;
+
+  /**
+   * Visitor Pattern
+   */
+  visit(visitor: (item: T) => void): void;
 }
 
 /**
@@ -88,10 +93,13 @@ function createDatabase<T extends BaseRecord>() {
     onAfterAdd(listener: Listener<AfterSetEvent<T>>): () => void {
       return this.afterAddListeners.subscribe(listener);
     }
-
     /**
-     * End
+     * Visitor Pattern
      */
+
+    visit(visitor: (item: T) => void): void {
+      Object.values(this.db).forEach(visitor);
+    }
 
     get(id: string): T {
       return this.db[id];
@@ -131,4 +139,11 @@ PokemonDB.instance.set({
   id: "squirtle",
   attack: 40,
   defense: 30,
+});
+/**
+ * Visitor Pattern
+ * Just like using foreach
+ */
+PokemonDB.instance.visit(item => {
+  console.log(item.id);
 });
